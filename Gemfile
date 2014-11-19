@@ -41,3 +41,7 @@ gem 'spring', group: :development
 gem 'knockoutjs-rails'
 
 gem 'rspec-rails', '~> 3.0', group: [:development, :test]
+
+gem 'factory_girl'
+
+gem 'database_cleaner'

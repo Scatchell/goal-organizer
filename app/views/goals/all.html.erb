@@ -1,0 +1,34 @@
+<h1>Organizer</h1>
+<form>
+  <div>
+    <label for="title">Title: </label>
+    <input id="title" type="text" data-bind="value: newGoalTitle">
+  </div>
+  <div>
+    <label for="level">Level: </label>
+    <input id="level" type="text" data-bind="value: newGoalLevel">
+  </div>
+  <div>
+    <button type="button" data-bind="click: addGoal">Add</button>
+  </div>
+</form>
+
+<div id="goals">
+  <h3>Goals List:</h3>
+  <ul data-bind="foreach: goals, visible: goals().length > 0" id="goal-list">
+    <li data-bind="css: 'level-' + level()">
+      <input data-bind="value: title"/>
+      <!--<a href="#" data-bind="click: $parent.removeTask">Delete</a>-->
+    </li>
+  </ul>
+
+  Total goals: <span data-bind="text: goals().length"></span>
+</div>
+
+<div id="debug"></div>
+
+<script type="application/javascript">
+    var goalList = new GoalListViewModel();
+    ko.applyBindings(goalList);
+    goalList.loadAllGoals();
+</script>

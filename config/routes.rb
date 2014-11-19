@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
-  get 'goals/new'
+  get 'goals/all'
+
+  get 'goals/index'
 
   post 'goals/update'
 
@@ -7,7 +9,7 @@ Rails.application.routes.draw do
   # See how all your routes lay out with "rake routes".
 
   # You can have the root of your site routed with "root"
-  root 'goals#new'
+  root 'goals#all'
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'

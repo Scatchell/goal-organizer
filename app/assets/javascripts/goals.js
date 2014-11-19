@@ -11,7 +11,7 @@ function GoalListViewModel() {
     self.newGoalLevel = ko.observable();
 
     self.addGoal = function () {
-        var goal = new Goal({title: self.newGoalTitle(), level: self.newGoalLevel()});
+        var goal = new Goal({title: self.newGoalTitle(), level: parseInt(self.newGoalLevel())});
         self.goals.push(goal);
         self.save(goal);
 
@@ -24,7 +24,20 @@ function GoalListViewModel() {
             data: ko.toJSON({goal: goal}),
             type: "post", contentType: "application/json",
             success: function (result) {
-                $('#debug').text(result.title + ' -- was created');
+                $('#debug').text(result['created_title'] + ' -- was created');
+            }
+        });
+    };
+
+    self.loadAllGoals = function () {
+        $.ajax("/goals/index", {
+            type: "get", contentType: "application/json",
+            success: function (allGoals) {
+                var goalsList = allGoals.map(function(goal_data){
+                    return new Goal(goal_data);
+                });
+
+                self.goals(goalsList);
             }
         });
     }
