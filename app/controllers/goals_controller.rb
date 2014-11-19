@@ -6,6 +6,6 @@ class GoalsController < ApplicationController
 
   def update
     puts params
-    render nothing: true
+    render json: params[:goal]
   end
 end

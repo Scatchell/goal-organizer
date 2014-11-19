@@ -7,9 +7,26 @@ function GoalListViewModel() {
     var self = this;
 
     self.goals = ko.observableArray([]);
+    self.newGoalTitle = ko.observable();
+    self.newGoalLevel = ko.observable();
 
-    self.addGoal = function() {
-        self.goals.push(new Goal({title: 'test', level: 1}))
+    self.addGoal = function () {
+        var goal = new Goal({title: self.newGoalTitle(), level: self.newGoalLevel()});
+        self.goals.push(goal);
+        self.save(goal);
+
+        self.newGoalTitle('');
+        self.newGoalLevel('');
+    };
+
+    self.save = function (goal) {
+        $.ajax("/goals/update", {
+            data: ko.toJSON({goal: goal}),
+            type: "post", contentType: "application/json",
+            success: function (result) {
+                $('#debug').text(result.title + ' -- was created');
+            }
+        });
     }
 }
 
