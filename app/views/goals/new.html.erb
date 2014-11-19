@@ -1,0 +1,20 @@
+<h1>Goals#new</h1>
+<form action="goals/update" data-remote="true" method="post">
+  <input type="hidden" name="goals" data-bind="value: ko.toJSON(goals)"/>
+  <button type="button" data-bind="click: addGoal">Add</button>
+  <button type="submit">Save</button>
+</form>
+<ul data-bind="foreach: goals, visible: goals().length > 0">
+  <li>
+    <input data-bind="value: title"/>
+    <!--<a href="#" data-bind="click: $parent.removeTask">Delete</a>-->
+  </li>
+</ul>
+
+Total goals: <span data-bind="text: goals().length"></span>
+
+<script type="application/javascript">
+//  todo should the apply bindings be moved somewhere else?
+    ko.applyBindings(new GoalListViewModel());
+</script>
+
