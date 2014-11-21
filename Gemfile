@@ -45,3 +45,5 @@ gem 'rspec-rails', '~> 3.0', group: [:development, :test]
 gem 'factory_girl'
 
 gem 'database_cleaner'
+
+gem 'jasmine-rails'

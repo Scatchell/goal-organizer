@@ -1,6 +1,8 @@
 FactoryGirl.define do
   factory :goal do
-    title 'test'
-    level 0
+    sequence :title do |n|
+      "test-#{n}"
+    end
+    parent_id nil
   end
 end

@@ -1,24 +1,19 @@
 <h1>Organizer</h1>
-<form>
-  <div>
-    <label for="title">Title: </label>
-    <input id="title" type="text" data-bind="value: newGoalTitle">
-  </div>
-  <div>
-    <label for="level">Level: </label>
-    <input id="level" type="text" data-bind="value: newGoalLevel">
-  </div>
-  <div>
-    <button type="button" data-bind="click: addGoal">Add</button>
-  </div>
-</form>
-
 <div id="goals">
+  <div data-bind="visible: goals().length == 0">
+    <div>Add your first goal!</div>
+    <input id="first-goal-text" data-bind="value: newGoalTitle"/>
+    <button type="button" data-bind="click: addFirstGoal">Add First Goal!</button>
+  </div>
+
   <h3>Goals List:</h3>
   <ul data-bind="foreach: goals, visible: goals().length > 0" id="goal-list">
     <li data-bind="css: 'level-' + level()">
-      <input data-bind="value: title"/>
+      <div data-bind="text: title"></div>
       <!--<a href="#" data-bind="click: $parent.removeTask">Delete</a>-->
+      <input id="goal-text" data-bind="value: $parent.newGoalTitle"/>
+      <button type="button" data-bind="click: $parent.addGoalAsSibling">Add Down</button>
+      <button type="button" data-bind="click: $parent.addGoalAsChild">Add Down And Right</button>
     </li>
   </ul>
 

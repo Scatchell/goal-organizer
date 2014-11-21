@@ -11,13 +11,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141119054100) do
+ActiveRecord::Schema.define(version: 20141120061306) do
 
   create_table "goals", force: true do |t|
     t.string   "title"
-    t.integer  "level"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "parent_id"
   end
+
+  add_index "goals", ["parent_id"], name: "index_goals_on_parent_id"
 
 end
