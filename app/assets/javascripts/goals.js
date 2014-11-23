@@ -1,12 +1,24 @@
-function Goal(data, goalLevel) {
+//todo order goals based on parent (i.e. goals should show up only under their parent)
+
+function Goal(data) {
+    var self = this;
+
     this.title = ko.observable(data.title);
-    this.parent_title = ko.observable(data.parent_title);
+    this.children = ko.observableArray(data.children);
+    this.root = ko.observable(false);
+    this.level = ko.observable();
 
     this.setLevel = function (level) {
-        this.level = ko.observable(level);
+        if (level == 0) {
+            self.root(true);
+        }
+
+        self.level(level);
     };
 
-    this.setLevel(goalLevel);
+    if (data.root == true) {
+        this.setLevel(0);
+    }
 }
 
 function GoalListViewModel() {
@@ -22,28 +34,69 @@ function GoalListViewModel() {
         self.newGoalTitle('');
     }
 
+    self.newGoalTextEmpty = function () {
+        return self.newGoalTitle() == '';
+    };
+
     self.addFirstGoal = function () {
         var goal = new Goal({title: self.newGoalTitle(), parent_title: null}, 0);
+        goal.setLevel(0);
         addGoal(goal);
     };
 
-    self.addGoalAsSibling = function (originalGoal) {
-        var goalLevel = originalGoal.level();
-
-        var goal = new Goal({title: self.newGoalTitle(), parent_title: originalGoal.parent_title()}, goalLevel);
-        addGoal(goal);
+    self.findParentOf = function (goalToSearchFor) {
+        return self.goals().filter(function (goal) {
+            return $.inArray(goalToSearchFor.title(), goal.children()) != -1;
+        })[0];
     };
 
-    self.addGoalAsChild = function (originalGoal) {
-        var goalLevel = originalGoal.level() + 1;
+    self.findGoalByTitle = function (goalTitleToSearchFor) {
+        return self.goals().filter(function (goal) {
+            return goalTitleToSearchFor == goal.title();
+        })[0];
+    };
 
-        var goal = new Goal({title: self.newGoalTitle(), parent_title: originalGoal.title()}, goalLevel);
+    self.addGoalAsSibling = function (goalToAddSiblingTo) {
+        var goal = new Goal({title: self.newGoalTitle()});
+        if (goalToAddSiblingTo.root() == false) {
+            var parent = self.findParentOf(goalToAddSiblingTo);
+            goal.setLevel(goalToAddSiblingTo.level());
+            parent.children.push(goal.title());
+        } else {
+            goal.setLevel(0);
+        }
+
         addGoal(goal);
+
+        self.addLevelToGoals();
+    };
+
+    self.addGoalAsChild = function (goalToAddChildTo) {
+        var goal = new Goal({title: self.newGoalTitle(), children: []});
+        goal.setLevel(goalToAddChildTo.level() + 1);
+        goalToAddChildTo.children.push(goal.title());
+
+        addGoal(goal);
+
+        self.addLevelToGoals();
+    };
+
+    self.convertToParentStyle = function (goal) {
+        var parentGoal = self.findParentOf(goal);
+        if (parentGoal) {
+            goal.parent_title = parentGoal.title();
+        }
+
+        delete goal['level'];
+        delete goal['children'];
+        delete goal['root'];
+
+        return goal;
     };
 
     self.save = function (goal) {
         $.ajax("/goals/update", {
-            data: ko.toJSON({goal: goal}),
+            data: ko.toJSON({goal: self.convertToParentStyle(goal)}),
             type: "post", contentType: "application/json",
             success: function (result) {
                 $('#debug').text(result['created_title'] + ' -- was created');
@@ -67,32 +120,35 @@ function GoalListViewModel() {
         });
     };
 
+    self.pushChildGoals = function (goal, orderedGoalList, level) {
+        level++;
+
+        goal.children().forEach(function (childGoalTitle) {
+            var foundGoal = self.findGoalByTitle(childGoalTitle);
+            foundGoal.level(level);
+            orderedGoalList.push(foundGoal);
+            if (foundGoal.children().length > 0) {
+                self.pushChildGoals(foundGoal, orderedGoalList, level);
+            }
+        });
+    };
+
     self.addLevelToGoals = function () {
-        function goalsWithoutLevels(goals) {
-            var goalsWithLevelsNotSet = goals.filter(function (goal) {
-                return goal.level() == undefined;
-            });
+        var orderedGoalList = [];
+        var parentGoals = [];
+        self.goals().forEach(function (goal) {
+            if (goal.root() == true) {
+                parentGoals.push(goal);
+            }
+        });
 
-            return !(goalsWithLevelsNotSet.length == 0);
-        }
+        var level = 0;
 
-        function findParentGoal(goals, parentTitle) {
-            return goals.filter(function (goal) {
-                return goal.title() == parentTitle;
-            })[0];
-        }
+        parentGoals.forEach(function (parentGoal) {
+            orderedGoalList.push(parentGoal);
+            self.pushChildGoals(parentGoal, orderedGoalList, level);
+        });
 
-        while (goalsWithoutLevels(self.goals())) {
-            self.goals().forEach(function (goal) {
-                if (goal.parent_title() == null) {
-                    goal.level(0);
-                } else {
-                    var parentGoal = findParentGoal(self.goals(), goal.parent_title());
-                    if (parentGoal.level() != undefined) {
-                        goal.level(parentGoal.level() + 1);
-                    }
-                }
-            });
-        }
+        self.goals(orderedGoalList);
     };
 }

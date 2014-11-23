@@ -47,10 +47,12 @@ RSpec.describe GoalsController, :type => :controller do
       goals = JSON.parse(response.body)
 
       expect(goals[0]['title']).to eq('test-1')
-      expect(goals[0]['parent_title']).to eq(nil)
+      expect(goals[0]['children']).to eq(['test-2'])
+      expect(goals[0]['root']).to eq(true)
 
       expect(goals[1]['title']).to eq('test-2')
-      expect(goals[1]['parent_title']).to eq('test-1')
+      expect(goals[1]['children']).to eq([])
+      expect(goals[1]['root']).to eq(false)
     end
   end
 

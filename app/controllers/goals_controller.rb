@@ -11,11 +11,18 @@ class GoalsController < ApplicationController
     goals = Goal.all
 
     @goals = goals.map do |goal|
-      parent_title = goal.parent ? Goal.find(goal.parent.id).title : nil
+      root = goal.parent.nil?
+      puts goal.to_json
+      children = Goal.where(parent: goal)
+      children_titles = children.map do |child|
+        child.title
+      end
 
       {
           title: goal.title,
-          parent_title: parent_title
+          children: children_titles,
+          root: root
+
       }
     end
 
