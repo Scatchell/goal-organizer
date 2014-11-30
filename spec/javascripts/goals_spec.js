@@ -1,13 +1,6 @@
 // include spec/javascripts/helpers/some_helper_file.js and app/assets/javascripts/foo.js
 //= require goals
-//1
-//    2
-//    3
-//4
-//    5
-//        8
-//6
-//7
+
 describe('Goals', function () {
     it("should find parent of goal", function () {
         var goal3 = new Goal({title: 'test2', children: [], root: true});
@@ -26,7 +19,7 @@ describe('Goals', function () {
         goalListViewModel.goals([goal]);
 
         var newGoalTitle = 'new-goal-title';
-        goalListViewModel.newGoalTitle(newGoalTitle);
+        goal.newGoalTitle(newGoalTitle);
         goalListViewModel.addGoalAsSibling(goal);
 
         expect(goalListViewModel.goals().length).toBe(2);
@@ -45,7 +38,7 @@ describe('Goals', function () {
 
         goalListViewModel.goals([parentGoal, childGoal]);
 
-        goalListViewModel.newGoalTitle('new-goal-title');
+        childGoal.newGoalTitle('new-goal-title');
         goalListViewModel.addGoalAsSibling(childGoal);
 
         expect(goalListViewModel.goals()[2].title()).toBe('new-goal-title');
@@ -62,7 +55,7 @@ describe('Goals', function () {
 
         goalListViewModel.goals([parentGoal, originalGoal]);
 
-        goalListViewModel.newGoalTitle('new-goal-title');
+        originalGoal.newGoalTitle('new-goal-title');
         goalListViewModel.addGoalAsChild(originalGoal);
 
         expect(goalListViewModel.goals()[2].level()).toBe(2);
@@ -74,7 +67,7 @@ describe('Goals', function () {
         var goalListViewModel = new GoalListViewModel();
         goalListViewModel.goals([goal]);
 
-        goalListViewModel.newGoalTitle('test-goal-title');
+        goal.newGoalTitle('test-goal-title');
         goalListViewModel.addGoalAsChild(goal);
 
         expect(goalListViewModel.goals().length).toBe(2);
@@ -85,13 +78,6 @@ describe('Goals', function () {
         expect(goalListViewModel.goals()[0].children()).toEqual(['test-goal-title']);
         expect(goalListViewModel.goals()[0].root()).toBe(true);
     });
-
-    //1
-    //  3
-    //     5
-    //        6
-    //2
-    //  4
 
     it("should initiate all goals at proper levels and with correct children", function () {
         var goal6 = new Goal({title: 'goal6', children: []});
@@ -152,7 +138,7 @@ describe('Goals', function () {
     });
 
     it("should convert goal with existing parent to parent style", function () {
-        var goal1 = new Goal({title: 'goal1', chidren: []});
+        var goal1 = new Goal({title: 'goal1', children: []});
         var goal2 = new Goal({title: 'goal2', children: ['goal1'], root: true});
 
 
@@ -186,17 +172,76 @@ describe('Goals', function () {
 
     it("should add first goal as root", function () {
         var goalListViewModel = new GoalListViewModel();
-        goalListViewModel.newGoalTitle('test');
+        goalListViewModel.firstGoalTitle = 'test';
         goalListViewModel.addFirstGoal();
 
-        expect(ko.toJSON(goalListViewModel.goals()[0])).toBe('{"title":"test","children":[],"root":true,"level":0}');
+        expect(goalListViewModel.goals()[0].children()).toEqual([]);
+        expect(goalListViewModel.goals()[0].root()).toBe(true);
+        expect(goalListViewModel.goals()[0].level()).toBe(0);
+        expect(goalListViewModel.goals()[0].title()).toBe('test');
+    });
+
+    it("should know goal title is NOT in error when its name has not been taken", function () {
+        var goal1 = new Goal({title: 'goal1', chidren: [], root: true});
+
+        var goalListViewModel = new GoalListViewModel();
+
+        goalListViewModel.goals([goal1]);
+
+        goal1.newGoalTitle('goal2');
+
+        expect(goal1.hasError()).toBe(false);
+    });
+
+    it("should know when goal title is in error because it has already been taken", function () {
+        var goal1 = new Goal({title: 'goal1', chidren: [], root: true});
+        var goal2 = new Goal({title: 'goal2', chidren: [], root: true});
+
+        var goalListViewModel = new GoalListViewModel();
+
+        goalListViewModel.goals([goal1, goal2]);
+
+        goal2.newGoalTitle('goal1');
+
+        expect(goal2.hasError()).toBe(true);
+    });
+
+    it("should not be ready to add if goal has no new goal title", function () {
+        var goal1 = new Goal({title: 'goal1', chidren: [], root: true});
+
+        var goalListViewModel = new GoalListViewModel();
+
+        goalListViewModel.goals([goal1]);
+
+        goal1.newGoalTitle('');
+
+        expect(goal1.readyToAdd()).toBe(false);
     });
 
 
-    //it("should ", function () {
-    //    var goal = new Goal({title:'test', root: 1})
-    //    var gvm = new GoalListViewModel();
-    //    var test = gvm.convertToParentStyle(goal);
-    //    expect(test.level).toBe(undefined);
-    //});
+    it("should not be ready to add if goal is using already used name", function () {
+        var goal1 = new Goal({title: 'goal1', chidren: [], root: true});
+
+        var goalListViewModel = new GoalListViewModel();
+
+        goalListViewModel.goals([goal1]);
+
+        goal1.newGoalTitle('title');
+        goal1.hasError(true);
+
+        expect(goal1.readyToAdd()).toBe(false);
+    });
+
+    it("should be ready to add if goal contains both new goal title and is not in error", function () {
+        var goal1 = new Goal({title: 'goal1', chidren: [], root: true});
+
+        var goalListViewModel = new GoalListViewModel();
+
+        goalListViewModel.goals([goal1]);
+
+        goal1.newGoalTitle('title');
+        goal1.hasError(false);
+
+        expect(goal1.readyToAdd()).toBe(true);
+    });
 });

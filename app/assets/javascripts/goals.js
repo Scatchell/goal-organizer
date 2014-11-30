@@ -1,5 +1,3 @@
-//todo order goals based on parent (i.e. goals should show up only under their parent)
-
 function Goal(data) {
     var self = this;
 
@@ -7,6 +5,11 @@ function Goal(data) {
     this.children = ko.observableArray(data.children);
     this.root = ko.observable(false);
     this.level = ko.observable();
+    this.newGoalTitle = ko.observable();
+    this.hasError = ko.observable();
+    this.readyToAdd = ko.computed(function () {
+        return (self.newGoalTitle() && !self.hasError()) ? true : false;
+    });
 
     this.setLevel = function (level) {
         if (level == 0) {
@@ -24,23 +27,60 @@ function Goal(data) {
 function GoalListViewModel() {
     var self = this;
 
-    self.goals = ko.observableArray([]);
-    self.newGoalTitle = ko.observable();
+    this.goals = ko.observableArray([]);
+
+    this.firstGoalTitle = '';
+
+    //todo refactor this computed function? At least extract some methods....(I'd do it now but it's really late)
+    ko.computed(function () {
+        var nonEmptyNewGoalTitles = self.goals().filter(function (goal) {
+            goal.hasError(false);
+            //return only where newGoalTitle exists
+            return goal.newGoalTitle();
+        });
+
+
+        self.goals().forEach(function (goal) {
+            var matchedGoal = null;
+
+            nonEmptyNewGoalTitles.forEach(function (nonEmptyNewGoal) {
+                if (nonEmptyNewGoal.newGoalTitle() == goal.title()) {
+                    matchedGoal = nonEmptyNewGoal;
+                }
+            });
+
+            if (matchedGoal) {
+                matchedGoal.hasError(true);
+            }
+        });
+
+    }, this);
+
+    this.errorMessage = 'This goal name has already been taken';
 
     function addGoal(goal) {
         self.goals.push(goal);
         self.save(goal);
-
-        self.newGoalTitle('');
     }
 
     self.newGoalTextEmpty = function () {
         return self.newGoalTitle() == '';
     };
 
+    self.firstGoalOnEnterKey = function (element, domEvent) {
+        if (self.firstGoalTitle){
+            if (domEvent.keyCode === 13) {
+                self.addFirstGoal();
+            }
+        }
+        return true;
+    };
+
     self.addFirstGoal = function () {
-        var goal = new Goal({title: self.newGoalTitle(), parent_title: null}, 0);
-        goal.setLevel(0);
+        var goal = new Goal({title: self.firstGoalTitle, parent_title: null, root: true});
+
+        self.firstGoalTitle = '';
+
         addGoal(goal);
     };
 
@@ -56,8 +96,17 @@ function GoalListViewModel() {
         })[0];
     };
 
+    self.newChildOnEnterKey = function (goal, domEvent) {
+        if (goal.readyToAdd()) {
+            if (domEvent.keyCode === 13) {
+                self.addGoalAsChild(goal);
+            }
+        }
+        return true;
+    };
+
     self.addGoalAsSibling = function (goalToAddSiblingTo) {
-        var goal = new Goal({title: self.newGoalTitle()});
+        var goal = new Goal({title: goalToAddSiblingTo.newGoalTitle()});
         if (goalToAddSiblingTo.root() == false) {
             var parent = self.findParentOf(goalToAddSiblingTo);
             goal.setLevel(goalToAddSiblingTo.level());
@@ -67,31 +116,32 @@ function GoalListViewModel() {
         }
 
         addGoal(goal);
+        goalToAddSiblingTo.newGoalTitle('');
 
         self.addLevelToGoals();
     };
 
     self.addGoalAsChild = function (goalToAddChildTo) {
-        var goal = new Goal({title: self.newGoalTitle(), children: []});
+        var goal = new Goal({title: goalToAddChildTo.newGoalTitle(), children: []});
         goal.setLevel(goalToAddChildTo.level() + 1);
         goalToAddChildTo.children.push(goal.title());
 
         addGoal(goal);
+        goalToAddChildTo.newGoalTitle('');
 
         self.addLevelToGoals();
     };
 
     self.convertToParentStyle = function (goal) {
+        var newGoalParentStyle = {};
+        newGoalParentStyle.title = goal.title();
         var parentGoal = self.findParentOf(goal);
         if (parentGoal) {
-            goal.parent_title = parentGoal.title();
+            newGoalParentStyle.parent_title = parentGoal.title();
         }
 
-        delete goal['level'];
-        delete goal['children'];
-        delete goal['root'];
 
-        return goal;
+        return newGoalParentStyle;
     };
 
     self.save = function (goal) {

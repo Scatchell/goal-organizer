@@ -2,7 +2,7 @@
 <div id="goals">
   <div data-bind="visible: goals().length == 0">
     <div>Add your first goal!</div>
-    <input id="first-goal-text" data-bind="value: newGoalTitle"/>
+    <input id="first-goal-text" data-bind="value: firstGoalTitle, event: {keypress: firstGoalOnEnterKey}"/>
     <button type="button" data-bind="click: addFirstGoal">Add First Goal!</button>
   </div>
 
@@ -11,9 +11,13 @@
     <li data-bind="css: 'level-' + level()">
       <div data-bind="text: title"></div>
       <!--<a href="#" data-bind="click: $parent.removeTask">Delete</a>-->
-      <input id="goal-text" data-bind="value: $parent.newGoalTitle"/>
-      <button type="button" data-bind="click: $parent.addGoalAsSibling">Add Down</button>
-      <button type="button" data-bind="click: $parent.addGoalAsChild">Add Down And Right</button>
+      <p data-bind="css: { error: hasError }">
+        <label for="goal-text">New goal name:</label>
+        <input id="goal-text" data-bind="textInput: newGoalTitle, event: {keypress: $parent.newChildOnEnterKey}"/>
+        <span data-bind='visible: hasError, text: $parent.errorMessage'> </span>
+      </p>
+      <button type="button" data-bind="enable: readyToAdd, click: $parent.addGoalAsSibling">Add Down</button>
+      <button type="button" data-bind="enable: readyToAdd, click: $parent.addGoalAsChild">Add Down And Right</button>
     </li>
   </ul>
 
@@ -23,7 +27,7 @@
 <div id="debug"></div>
 
 <script type="application/javascript">
-    var goalList = new GoalListViewModel();
-    ko.applyBindings(goalList);
+    goalList = new GoalListViewModel();
     goalList.loadAllGoals();
+    ko.applyBindings(goalList);
 </script>

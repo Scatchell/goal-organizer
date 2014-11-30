@@ -17,3 +17,11 @@
 #goals {
   margin: 30px;
 }
+
+p.error > input {
+  border: 1px solid red;
+}
+
+p.error > span {
+  color: red;
+}
