@@ -81,49 +81,57 @@ describe('Goals', function () {
 
     it("should initiate all goals at proper levels and with correct children", function () {
         var goal6 = new Goal({title: 'goal6', children: []});
-        var goal5 = new Goal({title: 'goal5', children: [goal6.title()]});
-        var goal3 = new Goal({title: 'goal3', children: [goal5.title()]});
-        var goal1 = new Goal({title: 'goal1', children: [goal3.title()], root: true});
+        var goal5 = new Goal({title: 'goal5', children: [goal6]});
+        var goal3 = new Goal({title: 'goal3', children: [goal5]});
+        var goal1 = new Goal({title: 'goal1', children: [goal3], root: true});
         var goal4 = new Goal({title: 'goal4', children: []});
-        var goal2 = new Goal({title: 'goal2', children: [goal4.title()], root: true});
+        var goal2 = new Goal({title: 'goal2', children: [goal4], root: true});
 
         var goalListViewModel = new GoalListViewModel();
 
-        goalListViewModel.goals([goal1, goal2, goal3, goal4, goal5, goal6]);
+        goalListViewModel.goals([goal1, goal2]);
 
         goalListViewModel.addLevelToGoals();
 
         var goalsWithLevel = goalListViewModel.goals();
 
         expect(goalsWithLevel[0].level()).toBe(0);
-        expect(goalsWithLevel[0].children()).toEqual(['goal3']);
+        expect(goalsWithLevel[0].children().length).toEqual(1);
+        var firstLevelOneChild = goalsWithLevel[0].children()[0];
+        expect(firstLevelOneChild.title()).toBe('goal3');
 
-        expect(goalsWithLevel[1].level()).toBe(1);
-        expect(goalsWithLevel[1].children()).toEqual(['goal5']);
+        expect(goalsWithLevel[1].level()).toBe(0);
+        expect(goalsWithLevel[1].children().length).toEqual(1);
+        var secondLevelOneChild = goalsWithLevel[1].children()[0];
+        expect(secondLevelOneChild.title()).toBe('goal4');
 
-        expect(goalsWithLevel[2].level()).toBe(2);
-        expect(goalsWithLevel[2].children()).toEqual(['goal6']);
+        expect(secondLevelOneChild.level()).toBe(1);
+        expect(secondLevelOneChild.children().length).toEqual(0);
 
-        expect(goalsWithLevel[3].level()).toBe(3);
-        expect(goalsWithLevel[3].children()).toEqual([]);
+        expect(firstLevelOneChild.level()).toBe(1);
+        expect(firstLevelOneChild.children().length).toEqual(1);
+        var firstLevelTwoChild = firstLevelOneChild.children()[0];
+        expect(firstLevelTwoChild.title()).toEqual('goal5');
 
-        expect(goalsWithLevel[4].level()).toBe(0);
-        expect(goalsWithLevel[4].children()).toEqual(['goal4']);
+        expect(firstLevelTwoChild.level()).toBe(2);
+        expect(firstLevelTwoChild.children().length).toEqual(1);
+        var firstLevelThreeChild = firstLevelTwoChild.children()[0];
+        expect(firstLevelThreeChild.title()).toEqual('goal6');
 
-        expect(goalsWithLevel[5].level()).toBe(1);
-        expect(goalsWithLevel[5].children()).toEqual([]);
+        expect(firstLevelThreeChild.level()).toBe(3);
+        expect(firstLevelThreeChild.children().length).toEqual(0);
 
 
     });
 
-    it("should give goals levels even if they are out of order", function () {
-        var goal1 = new Goal({title: 'goal1', chidren: []});
-        var goal2 = new Goal({title: 'goal2', children: ['goal1'], root: true});
+    it("should give goals levels even if they are defined out of order", function () {
+        var goal1 = new Goal({title: 'goal1', children: []});
+        var goal2 = new Goal({title: 'goal2', children: [goal1], root: true});
 
 
         var goalListViewModel = new GoalListViewModel();
 
-        goalListViewModel.goals([goal1, goal2]);
+        goalListViewModel.goals([goal2]);
 
         goalListViewModel.addLevelToGoals();
 
@@ -131,24 +139,25 @@ describe('Goals', function () {
 
         expect(goalsWithLevel[0].level()).toBe(0);
         expect(goalsWithLevel[0].title()).toBe('goal2');
-        expect(goalsWithLevel[0].children()).toEqual(['goal1']);
+        var levelOneChild = goalsWithLevel[0].children()[0];
 
-        expect(goalsWithLevel[1].level()).toBe(1);
-        expect(goalsWithLevel[1].title()).toBe('goal1');
+        expect(levelOneChild.title()).toBe('goal1');
+        expect(levelOneChild.level()).toBe(1);
+        expect(levelOneChild.children()).toEqual([]);
     });
 
     it("should convert goal with existing parent to parent style", function () {
         var goal1 = new Goal({title: 'goal1', children: []});
-        var goal2 = new Goal({title: 'goal2', children: ['goal1'], root: true});
+        var goal2 = new Goal({title: 'goal2', children: [goal1], root: true});
 
 
         var goalListViewModel = new GoalListViewModel();
 
-        goalListViewModel.goals([goal1, goal2]);
+        goalListViewModel.goals([goal2]);
 
         goalListViewModel.addLevelToGoals();
 
-        var goal1ParentStyle = goalListViewModel.convertToParentStyle(goal1);
+        var goal1ParentStyle = goalListViewModel.convertToParentStyle(goal2);
 
         expect(ko.toJSON(goal1ParentStyle)).toBe('{"title":"goal1","parent_title":"goal2"}');
     });

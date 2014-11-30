@@ -32,6 +32,7 @@ function GoalListViewModel() {
     this.firstGoalTitle = '';
 
     //todo refactor this computed function? At least extract some methods....(I'd do it now but it's really late)
+    //todo this computer function should be removed when we move away from title matching
     ko.computed(function () {
         var nonEmptyNewGoalTitles = self.goals().filter(function (goal) {
             goal.hasError(false);
@@ -68,7 +69,7 @@ function GoalListViewModel() {
     };
 
     self.firstGoalOnEnterKey = function (element, domEvent) {
-        if (self.firstGoalTitle){
+        if (self.firstGoalTitle) {
             if (domEvent.keyCode === 13) {
                 self.addFirstGoal();
             }
@@ -117,8 +118,6 @@ function GoalListViewModel() {
 
         addGoal(goal);
         goalToAddSiblingTo.newGoalTitle('');
-
-        self.addLevelToGoals();
     };
 
     self.addGoalAsChild = function (goalToAddChildTo) {
@@ -128,8 +127,6 @@ function GoalListViewModel() {
 
         addGoal(goal);
         goalToAddChildTo.newGoalTitle('');
-
-        self.addLevelToGoals();
     };
 
     self.convertToParentStyle = function (goal) {
@@ -149,7 +146,7 @@ function GoalListViewModel() {
             data: ko.toJSON({goal: self.convertToParentStyle(goal)}),
             type: "post", contentType: "application/json",
             success: function (result) {
-                $('#debug').text(result['created_title'] + ' -- was created');
+                $('#debug').text(result['action'] + '--' + result['title']);
             }
         });
     };
@@ -170,21 +167,19 @@ function GoalListViewModel() {
         });
     };
 
-    self.pushChildGoals = function (goal, orderedGoalList, level) {
+    self.pushChildGoals = function (goal, level) {
         level++;
 
-        goal.children().forEach(function (childGoalTitle) {
-            var foundGoal = self.findGoalByTitle(childGoalTitle);
-            foundGoal.level(level);
-            orderedGoalList.push(foundGoal);
-            if (foundGoal.children().length > 0) {
-                self.pushChildGoals(foundGoal, orderedGoalList, level);
+        goal.children().forEach(function (childGoal) {
+            childGoal.level(level);
+
+            if (childGoal.children().length > 0) {
+                self.pushChildGoals(childGoal, level);
             }
         });
     };
 
     self.addLevelToGoals = function () {
-        var orderedGoalList = [];
         var parentGoals = [];
         self.goals().forEach(function (goal) {
             if (goal.root() == true) {
@@ -195,10 +190,7 @@ function GoalListViewModel() {
         var level = 0;
 
         parentGoals.forEach(function (parentGoal) {
-            orderedGoalList.push(parentGoal);
-            self.pushChildGoals(parentGoal, orderedGoalList, level);
+            self.pushChildGoals(parentGoal, level);
         });
-
-        self.goals(orderedGoalList);
     };
 }

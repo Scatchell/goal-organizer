@@ -11,38 +11,25 @@ class GoalsController < ApplicationController
     goals = Goal.all
 
     @goals = goals.map do |goal|
-      root = goal.parent.nil?
-      puts goal.to_json
-      children = Goal.where(parent: goal)
-      children_titles = children.map do |child|
-        child.title
-      end
-
-      {
-          title: goal.title,
-          children: children_titles,
-          root: root
-
-      }
+      goal.prepare_for_send
     end
-
-    puts @goals.to_json
 
     render json: @goals
   end
 
   def update
+    # todo remove find by title, make find by unique id or title and all children, or something
     goal_json = goal_params
     already_existing_goal = Goal.find_by_title(goal_json[:title])
 
     if already_existing_goal
       already_existing_goal.update(add_parent_to_params(goal_json))
-      render json: {updated_title: goal_json[:title]}
+      render json: {action: 'updated', title: goal_json[:title]}
     else
       @goal = Goal.new(add_parent_to_params(goal_json))
 
       if @goal.save
-        render json: {created_title: goal_json[:title]}
+        render json: {action: 'created', title: goal_json[:title]}
       else
         render json: goal_json, notice: 'Goal not saved!'
       end
