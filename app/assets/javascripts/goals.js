@@ -1,6 +1,7 @@
 function Goal(data) {
     var self = this;
 
+    this.id = data.id;
     this.title = ko.observable(data.title);
     this.children = ko.observableArray(data.children);
     this.root = ko.observable(false);
@@ -32,7 +33,7 @@ function GoalListViewModel() {
     this.firstGoalTitle = '';
 
     //todo refactor this computed function? At least extract some methods....(I'd do it now but it's really late)
-    //todo this computer function should be removed when we move away from title matching
+    //todo this computed function should be removed when we move away from title matching
     ko.computed(function () {
         var nonEmptyNewGoalTitles = self.goals().filter(function (goal) {
             goal.hasError(false);
@@ -59,11 +60,6 @@ function GoalListViewModel() {
 
     this.errorMessage = 'This goal name has already been taken';
 
-    function addGoal(goal) {
-        self.goals.push(goal);
-        self.save(goal);
-    }
-
     self.newGoalTextEmpty = function () {
         return self.newGoalTitle() == '';
     };
@@ -82,13 +78,38 @@ function GoalListViewModel() {
 
         self.firstGoalTitle = '';
 
-        addGoal(goal);
+        self.goals.push(goal);
+        self.createNewGoal(goal);
     };
 
     self.findParentOf = function (goalToSearchFor) {
-        return self.goals().filter(function (goal) {
-            return $.inArray(goalToSearchFor.title(), goal.children()) != -1;
-        })[0];
+        var flattenedGoals = self.flattenGoals(self.goals());
+
+        var goalsWithMatchingChild = flattenedGoals.filter(function (goal) {
+            var childrenGoalIds = goal.children().map(function (childGoal) {
+                return childGoal.id;
+            });
+
+            return $.inArray(goalToSearchFor.id, childrenGoalIds) != -1;
+        });
+
+
+        return goalsWithMatchingChild[0];
+    };
+
+    self.flattenGoals = function (goals, listOfGoals) {
+        if (listOfGoals == undefined) {
+            listOfGoals = [];
+        }
+
+        goals.forEach(function (goal) {
+            listOfGoals.push(goal);
+            if (goal.children().length > 0) {
+                self.flattenGoals(goal.children(), listOfGoals);
+            }
+        });
+
+        return listOfGoals;
     };
 
     self.findGoalByTitle = function (goalTitleToSearchFor) {
@@ -108,41 +129,48 @@ function GoalListViewModel() {
 
     self.addGoalAsSibling = function (goalToAddSiblingTo) {
         var goal = new Goal({title: goalToAddSiblingTo.newGoalTitle()});
+
         if (goalToAddSiblingTo.root() == false) {
             var parent = self.findParentOf(goalToAddSiblingTo);
             goal.setLevel(goalToAddSiblingTo.level());
-            parent.children.push(goal.title());
+            parent.children.push(goal);
         } else {
+            //executed only if goal to add sibling of is a root goal
             goal.setLevel(0);
+            self.goals.push(goal);
         }
 
-        addGoal(goal);
+        self.createNewGoal(goal);
         goalToAddSiblingTo.newGoalTitle('');
     };
 
     self.addGoalAsChild = function (goalToAddChildTo) {
-        var goal = new Goal({title: goalToAddChildTo.newGoalTitle(), children: []});
+        var goal = new Goal({title: goalToAddChildTo.newGoalTitle()});
         goal.setLevel(goalToAddChildTo.level() + 1);
-        goalToAddChildTo.children.push(goal.title());
+        goalToAddChildTo.children.push(goal);
 
-        addGoal(goal);
+        self.createNewGoal(goal);
         goalToAddChildTo.newGoalTitle('');
     };
 
     self.convertToParentStyle = function (goal) {
+        //todo need to get parent id now instead of parent title
+        //todo the above todo will mandate getting a return on creation of a new goal so we can place the parent id here *sigh*
         var newGoalParentStyle = {};
+        newGoalParentStyle.id = goal.id;
         newGoalParentStyle.title = goal.title();
+
         var parentGoal = self.findParentOf(goal);
         if (parentGoal) {
-            newGoalParentStyle.parent_title = parentGoal.title();
+            newGoalParentStyle.parent_id = parentGoal.id;
         }
 
 
         return newGoalParentStyle;
     };
 
-    self.save = function (goal) {
-        $.ajax("/goals/update", {
+    self.createNewGoal = function (goal) {
+        $.ajax("/goals/create", {
             data: ko.toJSON({goal: self.convertToParentStyle(goal)}),
             type: "post", contentType: "application/json",
             success: function (result) {
@@ -150,21 +178,34 @@ function GoalListViewModel() {
             }
         });
     };
-    //todo titles of goals MUST be unique!
 
     self.loadAllGoals = function () {
         $.ajax("/goals/index", {
             type: "get", contentType: "application/json",
             success: function (allGoals) {
-                var goalsList = allGoals.map(function (goal_data) {
-                    return new Goal(goal_data);
-                });
+                var goalsList = self.mapGoals(allGoals);
 
                 self.goals(goalsList);
 
                 self.addLevelToGoals();
             }
         });
+    };
+
+    //todo make private function
+    //todo test for mapping goals recursively...
+    self.mapGoals = function (goals) {
+        var mappedGoals = [];
+
+        goals.forEach(function (singleGoal) {
+            if (singleGoal.children.length > 0) {
+                singleGoal.children = self.mapGoals(singleGoal.children);
+            }
+
+            mappedGoals.push(new Goal(singleGoal));
+        });
+
+        return mappedGoals;
     };
 
     self.pushChildGoals = function (goal, level) {

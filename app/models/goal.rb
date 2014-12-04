@@ -9,6 +9,7 @@ class Goal < ActiveRecord::Base
     end
 
     {
+        id: self.id,
         title: self.title,
         children: children_goals,
         root: root

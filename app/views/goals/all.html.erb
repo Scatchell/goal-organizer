@@ -7,19 +7,32 @@
   </div>
 
   <h3>Goals List:</h3>
-  <ul data-bind="foreach: goals, visible: goals().length > 0" id="goal-list">
+
+
+  <script id="goal-template" type="text/html">
     <li data-bind="css: 'level-' + level()">
       <div data-bind="text: title"></div>
-      <!--<a href="#" data-bind="click: $parent.removeTask">Delete</a>-->
+      <!--<a href="#" data-bind="click: $root.removeTask">Delete</a>-->
       <p data-bind="css: { error: hasError }">
         <label for="goal-text">New goal name:</label>
-        <input id="goal-text" data-bind="textInput: newGoalTitle, event: {keypress: $parent.newChildOnEnterKey}"/>
-        <span data-bind='visible: hasError, text: $parent.errorMessage'> </span>
+        <input id="goal-text" data-bind="textInput: newGoalTitle, event: {keypress: $root.newChildOnEnterKey}"/>
+        <span data-bind='visible: hasError, text: $root.errorMessage'> </span>
       </p>
-      <button type="button" data-bind="enable: readyToAdd, click: $parent.addGoalAsSibling">Add Down</button>
-      <button type="button" data-bind="enable: readyToAdd, click: $parent.addGoalAsChild">Add Down And Right</button>
+      <button type="button" data-bind="enable: readyToAdd, click: $root.addGoalAsSibling">Add Down</button>
+      <button type="button" data-bind="enable: readyToAdd, click: $root.addGoalAsChild">Add Down And Right</button>
     </li>
-  </ul>
+
+    <!-- ko template: { name: 'goal-template',
+                        foreach: children } -->
+    <!-- /ko -->
+  </script>
+
+
+  <!--todo add this back:
+  , visible: goals().length > 0
+  -->
+
+  <ul data-bind="template: { name: 'goal-template', foreach: goals }" id="goal-list"></ul>
 
   Total goals: <span data-bind="text: goals().length"></span>
 </div>
