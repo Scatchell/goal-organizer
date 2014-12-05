@@ -2,7 +2,7 @@
 <div id="goals">
   <div data-bind="visible: goals().length == 0">
     <div>Add your first goal!</div>
-    <input id="first-goal-text" data-bind="value: firstGoalTitle, event: {keypress: firstGoalOnEnterKey}"/>
+    <input id="first-goal-text" data-bind="value: firstGoalTitle, valueUpdate: 'input', event: {keypress: firstGoalOnEnterKey}"/>
     <button type="button" data-bind="click: addFirstGoal">Add First Goal!</button>
   </div>
 
@@ -11,11 +11,14 @@
 
   <script id="goal-template" type="text/html">
     <li data-bind="css: 'level-' + level()">
-      <div data-bind="text: title"></div>
+      <div>
+        <span class="goal-title" data-bind="text: title"></span>
+        <span data-bind="click: $root.removeGoal"><%= image_tag 'delete-icon.png', class: 'delete-icon' %></span>
+      </div>
       <!--<a href="#" data-bind="click: $root.removeTask">Delete</a>-->
       <p data-bind="css: { error: hasError }">
-        <label for="goal-text">New goal name:</label>
-        <input id="goal-text" data-bind="textInput: newGoalTitle, event: {keypress: $root.newChildOnEnterKey}"/>
+        <label for="new-goal-text">New goal name:</label>
+        <input class="new-goal-text" data-bind="textInput: newGoalTitle, event: {keypress: $root.newChildOnEnterKey}"/>
         <span data-bind='visible: hasError, text: $root.errorMessage'> </span>
       </p>
       <button type="button" data-bind="enable: readyToAdd, click: $root.addGoalAsSibling">Add Down</button>
@@ -27,12 +30,7 @@
     <!-- /ko -->
   </script>
 
-
-  <!--todo add this back:
-  , visible: goals().length > 0
-  -->
-
-  <ul data-bind="template: { name: 'goal-template', foreach: goals }" id="goal-list"></ul>
+  <ul data-bind="template: { name: 'goal-template', foreach: goals }, visible: goals().length > 0" id="goal-list"></ul>
 
   Total goals: <span data-bind="text: goals().length"></span>
 </div>

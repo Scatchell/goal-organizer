@@ -14,7 +14,7 @@ RSpec.describe GoalsController, :type => :controller do
 
       expect(response).to have_http_status(:success)
 
-      expected_hash = {action: 'created', title: 'test'}
+      expected_hash = {action: 'created', id: Goal.last.id}
       expect(response.body).to(eq(expected_hash.to_json))
 
       expect(Goal.last.title).to eq('test')
@@ -113,4 +113,35 @@ RSpec.describe GoalsController, :type => :controller do
     end
   end
 
+  describe 'remove goals' do
+
+    it 'should delete goals' do
+      goal = create(:goal, title: 'goal')
+
+      expect {
+        delete :destroy, id: goal.id
+      }.to change(Goal, :count).by(-1)
+
+      expect(response).to have_http_status(:success)
+
+      expected_hash = {action: 'deleted', id: goal.id}
+      expect(response.body).to(eq(expected_hash.to_json))
+    end
+
+    it 'should delete goals and all their children' do
+      parent_goal = create(:goal, title: 'parent-goal')
+      child_goal_one = create(:goal, title: 'child-goal_one', parent: parent_goal)
+      create(:goal, title: 'child-goal_two', parent: parent_goal)
+      create(:goal, title: 'level-two-child-goal_one', parent: child_goal_one)
+
+      expect {
+        delete :destroy, id: parent_goal.id
+      }.to change(Goal, :count).by(-4)
+
+      expect(response).to have_http_status(:success)
+
+      expected_hash = {action: 'deleted', id: parent_goal.id}
+      expect(response.body).to(eq(expected_hash.to_json))
+    end
+  end
 end

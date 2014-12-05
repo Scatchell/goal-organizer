@@ -8,6 +8,8 @@ Rails.application.routes.draw do
 
   post 'goals/create'
 
+  delete 'goals/:id', controller: :goals, action: :destroy
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

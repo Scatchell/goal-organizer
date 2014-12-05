@@ -3,8 +3,7 @@ class Goal < ActiveRecord::Base
 
   def prepare_for_send
     root = self.parent.nil?
-    children = Goal.where(parent: self)
-    children_goals = children.map do |child|
+    children_goals = self.children.map do |child|
       child.prepare_for_send
     end
 
@@ -15,6 +14,18 @@ class Goal < ActiveRecord::Base
         root: root
 
     }
+  end
+
+  def destroy_goal_and_all_children
+    self.children.each do |child|
+      child.destroy_goal_and_all_children
+    end
+
+    self.destroy
+  end
+
+  def children
+    Goal.where(parent: self)
   end
 
 end

@@ -30,7 +30,7 @@ function GoalListViewModel() {
 
     this.goals = ko.observableArray([]);
 
-    this.firstGoalTitle = '';
+    this.firstGoalTitle = ko.observable();
 
     //todo refactor this computed function? At least extract some methods....(I'd do it now but it's really late)
     //todo this computed function should be removed when we move away from title matching
@@ -60,12 +60,9 @@ function GoalListViewModel() {
 
     this.errorMessage = 'This goal name has already been taken';
 
-    self.newGoalTextEmpty = function () {
-        return self.newGoalTitle() == '';
-    };
-
     self.firstGoalOnEnterKey = function (element, domEvent) {
-        if (self.firstGoalTitle) {
+        console.log(self.firstGoalTitle());
+        if (self.firstGoalTitle()) {
             if (domEvent.keyCode === 13) {
                 self.addFirstGoal();
             }
@@ -74,9 +71,9 @@ function GoalListViewModel() {
     };
 
     self.addFirstGoal = function () {
-        var goal = new Goal({title: self.firstGoalTitle, parent_title: null, root: true});
+        var goal = new Goal({title: self.firstGoalTitle(), parent_title: null, root: true});
 
-        self.firstGoalTitle = '';
+        self.firstGoalTitle('');
 
         self.goals.push(goal);
         self.createNewGoal(goal);
@@ -118,6 +115,7 @@ function GoalListViewModel() {
         })[0];
     };
 
+    //todo new child on enter, new sibling on shift+enter
     self.newChildOnEnterKey = function (goal, domEvent) {
         if (goal.readyToAdd()) {
             if (domEvent.keyCode === 13) {
@@ -154,7 +152,6 @@ function GoalListViewModel() {
     };
 
     self.convertToParentStyle = function (goal) {
-        //todo need to get parent id now instead of parent title
         //todo the above todo will mandate getting a return on creation of a new goal so we can place the parent id here *sigh*
         var newGoalParentStyle = {};
         newGoalParentStyle.id = goal.id;
@@ -170,13 +167,35 @@ function GoalListViewModel() {
     };
 
     self.createNewGoal = function (goal) {
+        //todo !important append newly created id on creation
         $.ajax("/goals/create", {
             data: ko.toJSON({goal: self.convertToParentStyle(goal)}),
             type: "post", contentType: "application/json",
             success: function (result) {
-                $('#debug').text(result['action'] + '--' + result['title']);
+                $('#debug').text(result['action'] + '--' + result['id']);
+                //todo add some loading state so goal is not ready to add until receives id response?
+                goal.id = result['id'];
             }
         });
+    };
+
+    self.removeGoal = function (goal) {
+        $.ajax("/goals/" + goal.id, {
+            type: "delete",
+            success: function (result) {
+                $('#debug').text(result['action'] + '--' + result['id']);
+                self.removeGoalFromGoalsList(goal);
+            }
+        });
+    };
+
+    self.removeGoalFromGoalsList = function (goal) {
+        if (goal.root()) {
+            self.goals.remove(goal);
+        } else {
+            var goalParent = self.findParentOf(goal);
+            goalParent.children.remove(goal);
+        }
     };
 
     self.loadAllGoals = function () {
@@ -192,8 +211,6 @@ function GoalListViewModel() {
         });
     };
 
-    //todo make private function
-    //todo test for mapping goals recursively...
     self.mapGoals = function (goals) {
         var mappedGoals = [];
 

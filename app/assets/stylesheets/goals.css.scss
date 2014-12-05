@@ -10,7 +10,7 @@
 
 @for $i from 0 through 10 {
   .level-#{$i} {
-    margin-left: #{($i * 20)}px
+    margin-left: #{($i * 50)}px
   }
 }
 
@@ -24,4 +24,20 @@ p.error > input {
 
 p.error > span {
   color: red;
+}
+
+.goal-title {
+  font-weight: bold;
+  font-size: 1.5em;
+}
+
+.delete-icon {
+  width: 17px;
+  padding-left: 7px;
+}
+
+.delete-icon:hover {
+  width: 17px;
+  padding-left: 7px;
+  cursor: pointer;
 }

@@ -305,7 +305,11 @@ describe('Goals', function () {
 
 
     it("should map goal json to goal objects", function () {
-        var goalsJson = [{title: 'goal1', children: [{title: 'goal2', children: [{title: 'goal4', children: []}]}, {title: 'goal3', children: []}], root: true}];
+        var goalsJson = [{
+            title: 'goal1',
+            children: [{title: 'goal2', children: [{title: 'goal4', children: []}]}, {title: 'goal3', children: []}],
+            root: true
+        }];
 
         var goalListViewModel = new GoalListViewModel();
 
@@ -317,5 +321,37 @@ describe('Goals', function () {
         expect(returnList[0].children()[0].title()).toBe('goal2');
         expect(returnList[0].children()[0].children()[0].title()).toBe('goal4');
         expect(returnList[0].children()[1].title()).toBe('goal3');
+    });
+
+    it("should remove a child goal from the goals list", function () {
+        var goal1 = new Goal({id: 2, title: 'goal1', children: []});
+        var goal2 = new Goal({id: 1, title: 'goal2', children: [goal1], root: true});
+
+
+        var goalListViewModel = new GoalListViewModel();
+
+        goalListViewModel.goals([goal2]);
+
+        goalListViewModel.addLevelToGoals();
+
+        goalListViewModel.removeGoalFromGoalsList(goal1);
+
+        expect(goalListViewModel.goals()[0].children().length).toBe(0);
+    });
+
+    it("should remove a parent goal from the goals list", function () {
+        var goal1 = new Goal({id: 2, title: 'goal1', children: []});
+        var goal2 = new Goal({id: 1, title: 'goal2', children: [goal1], root: true});
+
+
+        var goalListViewModel = new GoalListViewModel();
+
+        goalListViewModel.goals([goal2]);
+
+        goalListViewModel.addLevelToGoals();
+
+        goalListViewModel.removeGoalFromGoalsList(goal2);
+
+        expect(goalListViewModel.goals().length).toBe(0);
     });
 });
