@@ -18,7 +18,7 @@
       <!--<a href="#" data-bind="click: $root.removeTask">Delete</a>-->
       <p data-bind="css: { error: hasError }">
         <label for="new-goal-text">New goal name:</label>
-        <input class="new-goal-text" data-bind="textInput: newGoalTitle, event: {keypress: $root.newChildOnEnterKey}"/>
+        <input class="new-goal-text" data-bind="textInput: newGoalTitle, event: {keypress: $root.newGoalKeyCommands}"/>
         <span data-bind='visible: hasError, text: $root.errorMessage'> </span>
       </p>
       <button type="button" data-bind="enable: readyToAdd, click: $root.addGoalAsSibling">Add Down</button>

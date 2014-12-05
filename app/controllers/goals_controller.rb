@@ -1,4 +1,4 @@
-# todo Add creation of sibling/child goal by clicking of arrows
+# todo Add arrow images for creation of sibling/child goal?
 # todo make goals formatting (css) look nicer
 require 'pp'
 class GoalsController < ApplicationController

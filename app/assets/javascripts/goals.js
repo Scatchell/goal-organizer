@@ -116,9 +116,11 @@ function GoalListViewModel() {
     };
 
     //todo new child on enter, new sibling on shift+enter
-    self.newChildOnEnterKey = function (goal, domEvent) {
+    self.newGoalKeyCommands = function (goal, domEvent) {
         if (goal.readyToAdd()) {
-            if (domEvent.keyCode === 13) {
+            if (domEvent.keyCode == 13 && event.shiftKey) {
+                self.addGoalAsSibling(goal);
+            } else if (domEvent.keyCode == 13) {
                 self.addGoalAsChild(goal);
             }
         }
