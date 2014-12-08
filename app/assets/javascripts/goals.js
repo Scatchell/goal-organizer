@@ -253,4 +253,9 @@ function GoalListViewModel() {
             self.pushChildGoals(parentGoal, level);
         });
     };
+
+    this.goalCount = ko.computed(function () {
+        return self.flattenGoals(self.goals()).length;
+    });
+
 }

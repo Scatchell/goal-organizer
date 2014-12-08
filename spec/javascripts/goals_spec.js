@@ -230,7 +230,7 @@ describe('Goals', function () {
 
     it("should add first goal as root", function () {
         var goalListViewModel = new GoalListViewModel();
-        goalListViewModel.firstGoalTitle = 'test';
+        goalListViewModel.firstGoalTitle('test');
         goalListViewModel.addFirstGoal();
 
         expect(goalListViewModel.goals()[0].children()).toEqual([]);
@@ -354,4 +354,22 @@ describe('Goals', function () {
 
         expect(goalListViewModel.goals().length).toBe(0);
     });
+
+    it("should know count of total goals", function () {
+        var goal6 = new Goal({title: 'goal6', children: []});
+        var goal5 = new Goal({title: 'goal5', children: [goal6]});
+        var goal3 = new Goal({title: 'goal3', children: [goal5]});
+        var goal1 = new Goal({title: 'goal1', children: [goal3], root: true});
+        var goal4 = new Goal({title: 'goal4', children: []});
+        var goal2 = new Goal({title: 'goal2', children: [goal4], root: true});
+
+        var goalListViewModel = new GoalListViewModel();
+
+        goalListViewModel.goals([goal1, goal2]);
+
+        goalListViewModel.addLevelToGoals();
+
+        expect(goalListViewModel.goalCount()).toBe(6);
+    });
+
 });
