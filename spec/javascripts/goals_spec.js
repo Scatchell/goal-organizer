@@ -239,31 +239,6 @@ describe('Goals', function () {
         expect(goalListViewModel.goals()[0].title()).toBe('test');
     });
 
-    it("should know goal title is NOT in error when its name has not been taken", function () {
-        var goal1 = new Goal({title: 'goal1', children: [], root: true});
-
-        var goalListViewModel = new GoalListViewModel();
-
-        goalListViewModel.goals([goal1]);
-
-        goal1.newGoalTitle('goal2');
-
-        expect(goal1.hasError()).toBe(false);
-    });
-
-    it("should know when goal title is in error because it has already been taken", function () {
-        var goal1 = new Goal({title: 'goal1', children: [], root: true});
-        var goal2 = new Goal({title: 'goal2', children: [], root: true});
-
-        var goalListViewModel = new GoalListViewModel();
-
-        goalListViewModel.goals([goal1, goal2]);
-
-        goal2.newGoalTitle('goal1');
-
-        expect(goal2.hasError()).toBe(true);
-    });
-
     it("should not be ready to add if goal has no new goal title", function () {
         var goal1 = new Goal({title: 'goal1', children: [], root: true});
 

@@ -84,28 +84,28 @@ RSpec.describe GoalsController, :type => :controller do
 
       expect(goals.size).to eq(2)
 
-      first_parent_goal = goals[0]
+      first_parent_goal = goals.select {|e| e['title'] == 'test-1-parent'}.first
       expect(first_parent_goal['title']).to eq('test-1-parent')
       expect(first_parent_goal['children'].size).to eq(2)
       first_parent_children_titles = first_parent_goal['children'].map { |e| e['title'] }
       expect(first_parent_children_titles).to contain_exactly(first_child_goal_level_2.title, second_child_goal_level_2.title)
       expect(first_parent_goal['root']).to eq(true)
 
-      second_parent_goal = goals[1]
+      second_parent_goal = goals.select {|e| e['title'] == 'test-2-parent'}.first
       expect(second_parent_goal['title']).to eq('test-2-parent')
       expect(second_parent_goal['children'].size).to eq(1)
       second_parent_children_titles = second_parent_goal['children'].map { |e| e['title'] }
       expect(second_parent_children_titles).to eq(['test-5-child'])
       expect(second_parent_goal['root']).to eq(true)
 
-      child_goal_level_2 = goals[0]['children'][0]
+      child_goal_level_2 = first_parent_goal['children'].select {|e| e['title'] == 'test-3-child'}.first
       expect(child_goal_level_2['title']).to eq('test-3-child')
       expect(child_goal_level_2['children'].size).to eq(1)
       expect(child_goal_level_2['children'][0]['title']).to eq('test-6-child')
       expect(child_goal_level_2['root']).to eq(false)
 
 
-      obtained_child_goal_level_3 = child_goal_level_2['children'][0]
+      obtained_child_goal_level_3 = child_goal_level_2['children'].select {|e| e['title'] == 'test-6-child'}.first
       expect(obtained_child_goal_level_3['title']).to eq('test-6-child')
       expect(obtained_child_goal_level_3['children'].size).to eq(1)
       expect(obtained_child_goal_level_3['children'][0]['title']).to eq('test-7-child')

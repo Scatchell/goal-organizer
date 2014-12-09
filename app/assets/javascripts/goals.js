@@ -32,32 +32,6 @@ function GoalListViewModel() {
 
     this.firstGoalTitle = ko.observable();
 
-    //todo refactor this computed function? At least extract some methods....(I'd do it now but it's really late)
-    //todo this computed function should be removed when we move away from title matching
-    ko.computed(function () {
-        var nonEmptyNewGoalTitles = self.goals().filter(function (goal) {
-            goal.hasError(false);
-            //return only where newGoalTitle exists
-            return goal.newGoalTitle();
-        });
-
-
-        self.goals().forEach(function (goal) {
-            var matchedGoal = null;
-
-            nonEmptyNewGoalTitles.forEach(function (nonEmptyNewGoal) {
-                if (nonEmptyNewGoal.newGoalTitle() == goal.title()) {
-                    matchedGoal = nonEmptyNewGoal;
-                }
-            });
-
-            if (matchedGoal) {
-                matchedGoal.hasError(true);
-            }
-        });
-
-    }, this);
-
     this.errorMessage = 'This goal name has already been taken';
 
     self.firstGoalOnEnterKey = function (element, domEvent) {
@@ -115,7 +89,6 @@ function GoalListViewModel() {
         })[0];
     };
 
-    //todo new child on enter, new sibling on shift+enter
     self.newGoalKeyCommands = function (goal, domEvent) {
         if (goal.readyToAdd()) {
             if (domEvent.keyCode == 13 && event.shiftKey) {
@@ -154,7 +127,6 @@ function GoalListViewModel() {
     };
 
     self.convertToParentStyle = function (goal) {
-        //todo the above todo will mandate getting a return on creation of a new goal so we can place the parent id here *sigh*
         var newGoalParentStyle = {};
         newGoalParentStyle.id = goal.id;
         newGoalParentStyle.title = goal.title();
@@ -169,7 +141,6 @@ function GoalListViewModel() {
     };
 
     self.createNewGoal = function (goal) {
-        //todo !important append newly created id on creation
         $.ajax("/goals/create", {
             data: ko.toJSON({goal: self.convertToParentStyle(goal)}),
             type: "post", contentType: "application/json",

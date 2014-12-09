@@ -13,6 +13,9 @@
 
 ActiveRecord::Schema.define(version: 20141120061306) do
 
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
   create_table "goals", force: true do |t|
     t.string   "title"
     t.datetime "created_at"
@@ -20,6 +23,6 @@ ActiveRecord::Schema.define(version: 20141120061306) do
     t.integer  "parent_id"
   end
 
-  add_index "goals", ["parent_id"], name: "index_goals_on_parent_id"
+  add_index "goals", ["parent_id"], name: "index_goals_on_parent_id", using: :btree
 
 end
