@@ -1,3 +1,4 @@
+# todo goals are queried with no particular order (or maybe aphabetically)
 # todo Add arrow images for creation of sibling/child goal?
 # todo make goals formatting (css) look nicer
 require 'pp'
@@ -8,7 +9,7 @@ class GoalsController < ApplicationController
   end
 
   def index
-    goals = Goal.where(parent: nil)
+    goals = Goal.where(parent: nil).order(:created_at)
 
     @goals = goals.map do |goal|
       goal.prepare_for_send

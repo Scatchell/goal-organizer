@@ -84,32 +84,81 @@ RSpec.describe GoalsController, :type => :controller do
 
       expect(goals.size).to eq(2)
 
-      first_parent_goal = goals.select {|e| e['title'] == 'test-1-parent'}.first
+      first_parent_goal = goals.select { |e| e['title'] == 'test-1-parent' }.first
       expect(first_parent_goal['title']).to eq('test-1-parent')
       expect(first_parent_goal['children'].size).to eq(2)
       first_parent_children_titles = first_parent_goal['children'].map { |e| e['title'] }
       expect(first_parent_children_titles).to contain_exactly(first_child_goal_level_2.title, second_child_goal_level_2.title)
       expect(first_parent_goal['root']).to eq(true)
 
-      second_parent_goal = goals.select {|e| e['title'] == 'test-2-parent'}.first
+      second_parent_goal = goals.select { |e| e['title'] == 'test-2-parent' }.first
       expect(second_parent_goal['title']).to eq('test-2-parent')
       expect(second_parent_goal['children'].size).to eq(1)
       second_parent_children_titles = second_parent_goal['children'].map { |e| e['title'] }
       expect(second_parent_children_titles).to eq(['test-5-child'])
       expect(second_parent_goal['root']).to eq(true)
 
-      child_goal_level_2 = first_parent_goal['children'].select {|e| e['title'] == 'test-3-child'}.first
+      child_goal_level_2 = first_parent_goal['children'].select { |e| e['title'] == 'test-3-child' }.first
       expect(child_goal_level_2['title']).to eq('test-3-child')
       expect(child_goal_level_2['children'].size).to eq(1)
       expect(child_goal_level_2['children'][0]['title']).to eq('test-6-child')
       expect(child_goal_level_2['root']).to eq(false)
 
 
-      obtained_child_goal_level_3 = child_goal_level_2['children'].select {|e| e['title'] == 'test-6-child'}.first
+      obtained_child_goal_level_3 = child_goal_level_2['children'].select { |e| e['title'] == 'test-6-child' }.first
       expect(obtained_child_goal_level_3['title']).to eq('test-6-child')
       expect(obtained_child_goal_level_3['children'].size).to eq(1)
       expect(obtained_child_goal_level_3['children'][0]['title']).to eq('test-7-child')
       expect(obtained_child_goal_level_3['root']).to eq(false)
+    end
+
+    it 'should order parent goals based on the time of their creation' do
+      first_goal = create(:goal, title: 'zzz', created_at: Time.now)
+      second_goal = create(:goal, title: 'ddd', created_at: Time.now + 20)
+      third_goal = create(:goal, title: 'aaa', created_at: Time.now + 40)
+
+      get :index
+
+      expect(response).to have_http_status(:success)
+
+      goals = JSON.parse(response.body)
+
+      expect(goals.size).to eq(3)
+
+      first_retrieved_goal = goals.first
+      expect(first_retrieved_goal['id']).to eq(first_goal.id)
+
+      second_retrieved_goal = goals[1]
+      expect(second_retrieved_goal['id']).to eq(second_goal.id)
+
+      third_retrieved_goal = goals[2]
+      expect(third_retrieved_goal['id']).to eq(third_goal.id)
+    end
+
+    it 'should order child goals based on the time of their creation' do
+      parent_goal = create(:goal, title: 'parent-goal')
+      
+      first_goal = create(:goal, title: 'zzz', parent: parent_goal, created_at: Time.now)
+      second_goal = create(:goal, title: 'ddd', parent: parent_goal, created_at: Time.now + 20)
+      third_goal = create(:goal, title: 'aaa', parent: parent_goal, created_at: Time.now + 40)
+
+      get :index
+
+      expect(response).to have_http_status(:success)
+
+      goals = JSON.parse(response.body)
+
+      expect(goals.size).to eq(1)
+
+      pp goals
+      first_retrieved_goal = goals.first['children'].first
+      expect(first_retrieved_goal['id']).to eq(first_goal.id)
+
+      second_retrieved_goal = goals.first['children'][1]
+      expect(second_retrieved_goal['id']).to eq(second_goal.id)
+
+      third_retrieved_goal = goals.first['children'][2]
+      expect(third_retrieved_goal['id']).to eq(third_goal.id)
     end
   end
 

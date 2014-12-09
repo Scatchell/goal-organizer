@@ -3,7 +3,9 @@ class Goal < ActiveRecord::Base
 
   def prepare_for_send
     root = self.parent.nil?
-    children_goals = self.children.map do |child|
+
+    children_ordered_by_date = self.children.order(:created_at)
+    children_goals = children_ordered_by_date.map do |child|
       child.prepare_for_send
     end
 
