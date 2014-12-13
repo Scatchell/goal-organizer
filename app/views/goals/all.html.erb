@@ -8,11 +8,10 @@
 
   <h3>Goals List:</h3>
 
-
   <script id="goal-template" type="text/html">
     <li data-bind="css: 'level-' + level()">
       <div>
-        <span class="goal-title" data-bind="text: title"></span>
+        <span class="goal-title" data-bind="text: title, attr: {id: id}"></span>
         <span data-bind="click: $root.removeGoal"><%= image_tag 'delete-icon.png', class: 'delete-icon' %></span>
       </div>
       <!--<a href="#" data-bind="click: $root.removeTask">Delete</a>-->

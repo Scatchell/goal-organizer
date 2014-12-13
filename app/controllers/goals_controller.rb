@@ -1,4 +1,5 @@
-# todo goals are queried with no particular order (or maybe aphabetically)
+# todo *important* add update functionality
+# todo think about 'completion' of certain goals/tasks
 # todo Add arrow images for creation of sibling/child goal?
 # todo make goals formatting (css) look nicer
 require 'pp'
@@ -19,7 +20,6 @@ class GoalsController < ApplicationController
   end
 
   def update
-    # todo remove find by title, make find by unique id or title and all children, or something
     goal_json = goal_params
     already_existing_goal = Goal.find(goal_json[:id])
 
@@ -34,7 +34,6 @@ class GoalsController < ApplicationController
 
 
   def create
-    # todo extract goal_json assignment to before filter?
     goal_json = goal_params
     @goal = Goal.new(add_parent_to_params(goal_json))
 

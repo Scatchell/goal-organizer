@@ -1,7 +1,7 @@
 function Goal(data) {
     var self = this;
 
-    this.id = data.id;
+    this.id = ko.observable(data.id);
     this.title = ko.observable(data.title);
     this.children = ko.observableArray(data.children);
     this.root = ko.observable(false);
@@ -58,10 +58,10 @@ function GoalListViewModel() {
 
         var goalsWithMatchingChild = flattenedGoals.filter(function (goal) {
             var childrenGoalIds = goal.children().map(function (childGoal) {
-                return childGoal.id;
+                return childGoal.id();
             });
 
-            return $.inArray(goalToSearchFor.id, childrenGoalIds) != -1;
+            return $.inArray(goalToSearchFor.id(), childrenGoalIds) != -1;
         });
 
 
@@ -128,12 +128,12 @@ function GoalListViewModel() {
 
     self.convertToParentStyle = function (goal) {
         var newGoalParentStyle = {};
-        newGoalParentStyle.id = goal.id;
+        newGoalParentStyle.id = goal.id();
         newGoalParentStyle.title = goal.title();
 
         var parentGoal = self.findParentOf(goal);
         if (parentGoal) {
-            newGoalParentStyle.parent_id = parentGoal.id;
+            newGoalParentStyle.parent_id = parentGoal.id();
         }
 
 
@@ -147,13 +147,14 @@ function GoalListViewModel() {
             success: function (result) {
                 $('#debug').text(result['action'] + '--' + result['id']);
                 //todo add some loading state so goal is not ready to add until receives id response?
-                goal.id = result['id'];
+                goal.id(result['id']);
+                self.makeGoalsEditable();
             }
         });
     };
 
     self.removeGoal = function (goal) {
-        $.ajax("/goals/" + goal.id, {
+        $.ajax("/goals/" + goal.id(), {
             type: "delete",
             success: function (result) {
                 $('#debug').text(result['action'] + '--' + result['id']);
@@ -180,8 +181,14 @@ function GoalListViewModel() {
                 self.goals(goalsList);
 
                 self.addLevelToGoals();
+
+                self.makeGoalsEditable();
             }
         });
+    };
+
+    self.makeGoalsEditable = function () {
+        $('.goal-title').editable('/goals/update');
     };
 
     self.mapGoals = function (goals) {
@@ -230,3 +237,4 @@ function GoalListViewModel() {
     });
 
 }
+
