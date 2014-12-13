@@ -23,7 +23,7 @@ describe('Goals', function () {
         var goalListViewModel = new GoalListViewModel();
         goalListViewModel.goals([goal3]);
 
-        expect(goalListViewModel.findParentOf(goal1)).toBe(goal3);
+        expect(goalListViewModel.findParentOf(goal1.id())).toBe(goal3);
     });
 
     it("should find parent of goal even if its parent is not at the root level", function () {
@@ -34,7 +34,7 @@ describe('Goals', function () {
         var goalListViewModel = new GoalListViewModel();
         goalListViewModel.goals([goal3]);
 
-        expect(goalListViewModel.findParentOf(goal2)).toBe(goal1);
+        expect(goalListViewModel.findParentOf(goal2.id())).toBe(goal1);
     });
 
     it("should add new goal as a sibling to first level parent", function () {

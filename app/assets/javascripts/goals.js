@@ -53,7 +53,7 @@ function GoalListViewModel() {
         self.createNewGoal(goal);
     };
 
-    self.findParentOf = function (goalToSearchFor) {
+    self.findParentOf = function (childGoalId) {
         var flattenedGoals = self.flattenGoals(self.goals());
 
         var goalsWithMatchingChild = flattenedGoals.filter(function (goal) {
@@ -61,7 +61,7 @@ function GoalListViewModel() {
                 return childGoal.id();
             });
 
-            return $.inArray(goalToSearchFor.id(), childrenGoalIds) != -1;
+            return $.inArray(childGoalId, childrenGoalIds) != -1;
         });
 
 
@@ -104,7 +104,7 @@ function GoalListViewModel() {
         var goal = new Goal({title: goalToAddSiblingTo.newGoalTitle()});
 
         if (goalToAddSiblingTo.root() == false) {
-            var parent = self.findParentOf(goalToAddSiblingTo);
+            var parent = self.findParentOf(goalToAddSiblingTo.id());
             goal.setLevel(goalToAddSiblingTo.level());
             parent.children.push(goal);
         } else {
@@ -131,7 +131,7 @@ function GoalListViewModel() {
         newGoalParentStyle.id = goal.id();
         newGoalParentStyle.title = goal.title();
 
-        var parentGoal = self.findParentOf(goal);
+        var parentGoal = self.findParentOf(goal.id());
         if (parentGoal) {
             newGoalParentStyle.parent_id = parentGoal.id();
         }
@@ -167,7 +167,7 @@ function GoalListViewModel() {
         if (goal.root()) {
             self.goals.remove(goal);
         } else {
-            var goalParent = self.findParentOf(goal);
+            var goalParent = self.findParentOf(goal.id());
             goalParent.children.remove(goal);
         }
     };

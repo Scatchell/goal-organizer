@@ -314,6 +314,12 @@
                                   $.extend(submitdata, settings.submitdata);
                               }
 
+                              var parentGoal = goalList.findParentOf(parseInt(submitdata.id));
+
+                              if(parentGoal) {
+                                  $.extend(submitdata, {parent_id: parentGoal.id()});
+                              }
+
                               submitdata = {goal: submitdata};
 
                               /* quick and dirty PUT support */

@@ -24,13 +24,16 @@ RSpec.describe GoalsController, :type => :controller do
     it 'should update an existing goals title if it does exist' do
       parent_goal = create(:goal, title: 'parent_goal')
 
+      child_goal = create(:goal, title: test_title, parent: nil)
+
       new_title = 'new_title'
       expect {
-        post :update, goal: {id: parent_goal.id, title: new_title}
+        post :update, goal: {id: child_goal.id, title: new_title, parent_id: parent_goal.id}
       }.to change(Goal, :count).by(0)
 
-      expect(Goal.count).to eq(1)
+      expect(Goal.count).to eq(2)
       expect(Goal.last.title).to eq(new_title)
+      expect(Goal.last.parent).to eq(parent_goal)
 
       expect(response).to have_http_status(:success)
       expect(response.body).to eq({action: 'updated', title: new_title}.to_json)
