@@ -2,6 +2,11 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
+$levelOneColor: green;
+$levelTwoColor: blue;
+$levelThreeColor: red;
+$levelFourColor: purple;
+
 #goal-list {
   margin: 0;
   padding: 0;
@@ -12,6 +17,26 @@
   .level-#{$i} {
     margin-left: #{($i * 50)}px
   }
+}
+
+.level-0 {
+  border-left: solid $levelOneColor;
+}
+
+.level-1 {
+  border-left: solid $levelTwoColor;
+}
+
+.level-2 {
+  border-left: solid $levelThreeColor;
+}
+
+.level-3 {
+  border-left: solid $levelFourColor;
+}
+
+.level {
+  padding-left: 10px;
 }
 
 #goals {
