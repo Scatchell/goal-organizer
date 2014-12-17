@@ -1,0 +1,35 @@
+<h1>Reminder goal</h1>
+<div id="goals">
+  <h3>Have you been focused on:</h3>
+
+  <script id="goal-template" type="text/html">
+    <li data-bind="css: 'level-' + level()" class="level">
+      <div>
+        <span class="goal-title" data-bind="text: title, attr: {id: id}"></span>
+        <span data-bind="click: $root.removeGoal"><%= image_tag 'delete-icon.png', class: 'delete-icon' %></span>
+      </div>
+      <!--<a href="#" data-bind="click: $root.removeTask">Delete</a>-->
+      <p data-bind="css: { error: hasError }">
+        <label for="new-goal-text">New goal name:</label>
+        <input class="new-goal-text" data-bind="textInput: newGoalTitle, event: {keypress: $root.newGoalKeyCommands}"/>
+        <span data-bind='visible: hasError, text: $root.errorMessage'> </span>
+      </p>
+      <button type="button" data-bind="enable: readyToAdd, click: $root.addGoalAsSibling">Add Down</button>
+      <button type="button" data-bind="enable: readyToAdd, click: $root.addGoalAsChild">Add Down And Right</button>
+    </li>
+
+    <!-- ko template: { name: 'goal-template',
+                        foreach: children } -->
+    <!-- /ko -->
+  </script>
+
+  <ul data-bind="template: { name: 'goal-template', foreach: goals }, visible: goals().length > 0" id="goal-list"></ul>
+</div>
+
+<div id="debug"></div>
+
+<script type="application/javascript">
+    goalList = new GoalListViewModel();
+    goalList.loadRandomGoal();
+    ko.applyBindings(goalList);
+</script>

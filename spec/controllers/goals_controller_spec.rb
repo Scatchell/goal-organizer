@@ -194,4 +194,21 @@ RSpec.describe GoalsController, :type => :controller do
       expect(response.body).to(eq(expected_hash.to_json))
     end
   end
+
+  describe 'choosing goals' do
+    it 'should choose a random parent goal to remind user of' do
+      parent_goal = create(:goal, title: 'goal1')
+
+      get :random_parent_goal
+
+      expect(response).to have_http_status(:success)
+
+      goal_json = JSON.parse(response.body)
+
+      expect(goal_json['id']).to eq(parent_goal.id)
+      expect(goal_json['title']).to eq(parent_goal.title)
+      expect(goal_json['children']).to eq([])
+      expect(goal_json['root']).to eq(true)
+    end
+  end
 end

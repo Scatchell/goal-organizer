@@ -30,4 +30,20 @@ class Goal < ActiveRecord::Base
     Goal.where(parent: self)
   end
 
+  def self.prepare_all_for_send
+    goals = self.parent_goals
+
+    goals.map do |goal|
+      goal.prepare_for_send
+    end
+  end
+
+  def self.select_reminder_parent_goal
+    self.parent_goals.sample
+  end
+
+  def self.parent_goals
+    Goal.where(parent: nil).order(:created_at)
+  end
+
 end

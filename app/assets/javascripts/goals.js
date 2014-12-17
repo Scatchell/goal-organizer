@@ -232,6 +232,21 @@ function GoalListViewModel() {
         });
     };
 
+    self.loadRandomGoal = function () {
+        $.ajax("/goals/random_parent_goal", {
+            type: "get", contentType: "application/json",
+            success: function (singleGoal) {
+                var goalsList = self.mapGoals([singleGoal]);
+
+                self.goals(goalsList);
+
+                self.addLevelToGoals();
+
+                self.makeGoalsEditable();
+            }
+        });
+    };
+
     this.goalCount = ko.computed(function () {
         return self.flattenGoals(self.goals()).length;
     });

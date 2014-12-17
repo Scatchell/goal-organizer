@@ -10,11 +10,7 @@ class GoalsController < ApplicationController
   end
 
   def index
-    goals = Goal.where(parent: nil).order(:created_at)
-
-    @goals = goals.map do |goal|
-      goal.prepare_for_send
-    end
+    @goals = Goal.prepare_all_for_send
 
     render json: @goals
   end
@@ -50,6 +46,15 @@ class GoalsController < ApplicationController
     goal_to_destroy.destroy_goal_and_all_children
 
     render json: {action: 'deleted', id: goal_to_destroy.id}
+  end
+
+  def random_parent_goal
+    goal = Goal.select_reminder_parent_goal.prepare_for_send
+
+    render json: goal
+  end
+
+  def reminder
   end
 
 

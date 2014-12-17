@@ -2,7 +2,11 @@ Rails.application.routes.draw do
   mount JasmineRails::Engine => '/specs' if defined?(JasmineRails)
   get 'goals/all'
 
+  get 'goals/reminder'
+
   get 'goals/index'
+
+  get 'goals/random_parent_goal'
 
   post 'goals/update'
 
