@@ -15,7 +15,7 @@
 
     <li data-bind="css: 'level-' + level()" class="level">
       <div>
-        <span class="goal-title" data-bind="text: title, attr: {id: id}"></span><span id="worked-on-details" data-bind="text: '(week: ' + workedForWeek() + ' -- total: ' + totalAmountWorked() + ')'"></span>
+        <span class="goal-title" data-bind="text: title, attr: {id: id}"></span><span id="worked-on-details" data-bind="visible: root(), text: '(week: ' + workedForWeek() + ' -- total: ' + totalAmountWorked() + ')'"></span>
         <span data-bind="click: $root.removeGoal"><%= image_tag 'delete-icon.png', class: 'delete-icon' %></span>
       </div>
       <!--<a href="#" data-bind="click: $root.removeTask">Delete</a>-->
