@@ -62,6 +62,14 @@ class GoalsController < ApplicationController
     params[:goal].permit(:title, :parent_id, :id)
   end
 
+  def worked_on_goal
+    goal_worked_on = Goal.find(params[:id])
+
+    goal_worked_on.increment_worked_for_week_by params[:amount]
+
+    render nothing: true
+  end
+
   private
   def add_parent_to_params(goal_params)
     parent_goal = Goal.find(goal_params[:parent_id]) if goal_params[:parent_id]

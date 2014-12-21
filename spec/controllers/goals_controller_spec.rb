@@ -164,7 +164,6 @@ RSpec.describe GoalsController, :type => :controller do
   end
 
   describe 'remove goals' do
-
     it 'should delete goals' do
       goal = create(:goal, title: 'goal')
 
@@ -209,6 +208,22 @@ RSpec.describe GoalsController, :type => :controller do
       expect(goal_json['title']).to eq(parent_goal.title)
       expect(goal_json['children']).to eq([])
       expect(goal_json['root']).to eq(true)
+    end
+  end
+
+  describe 'adding worked on time to goals' do
+    let(:goal) { create(:goal) }
+
+    it 'should create new goals with default amount worked for week of ZERO' do
+      retrieved_goal = Goal.find(goal.id)
+      expect(retrieved_goal.worked_for_week).to eq(0)
+    end
+
+    it 'should increase amount worked for week by 1' do
+      put :worked_on_goal, id: goal.id, amount: 1
+
+      retrieved_goal = Goal.find(goal.id)
+      expect(retrieved_goal.worked_for_week).to eq(1)
     end
   end
 end

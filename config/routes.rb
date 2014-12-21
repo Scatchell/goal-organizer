@@ -8,6 +8,8 @@ Rails.application.routes.draw do
 
   get 'goals/random_parent_goal'
 
+  put 'goals/worked_on_goal'
+
   post 'goals/update'
 
   post 'goals/create'

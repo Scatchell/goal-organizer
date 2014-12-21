@@ -51,4 +51,6 @@ gem 'jasmine-rails'
 
 gem 'rails_12factor', group: :production
 
+gem 'rufus-scheduler'
+
 ruby '2.1.2'

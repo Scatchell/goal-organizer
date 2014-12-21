@@ -1,6 +1,8 @@
 class Goal < ActiveRecord::Base
   belongs_to :parent, class_name: 'Goal'
 
+  after_initialize :default_values
+
   def prepare_for_send
     root = self.parent.nil?
 
@@ -44,6 +46,19 @@ class Goal < ActiveRecord::Base
 
   def self.parent_goals
     Goal.where(parent: nil).order(:created_at)
+  end
+
+  def increment_worked_for_week_by(amount)
+    self.worked_for_week += amount.to_i
+    self.save
+  end
+
+  private
+  DEFAULT_AMOUNT = 0
+
+  def default_values
+    self.worked_for_week ||= DEFAULT_AMOUNT
+    self.total_amount_worked ||= DEFAULT_AMOUNT
   end
 
 end
