@@ -42,8 +42,8 @@ RSpec.describe GoalsController, :type => :controller do
 
   describe 'Getting goals as json' do
     it 'should render all goals as json' do
-      parent_goal = create(:goal, title: 'test-1')
-      create(:goal, parent: parent_goal, title: 'test-2')
+      parent_goal = create(:goal, title: 'test-1', worked_for_week: 5)
+      create(:goal, parent: parent_goal, title: 'test-2', total_amount_worked: 5)
 
       get :index
 
@@ -57,11 +57,15 @@ RSpec.describe GoalsController, :type => :controller do
       expect(child_goal['id']).to_not be_nil
       expect(child_goal['title']).to eq('test-2')
       expect(child_goal['children']).to eq([])
+      expect(child_goal['workedForWeek']).to eq(0)
+      expect(child_goal['totalAmountWorked']).to eq(5)
       expect(child_goal['root']).to eq(false)
 
       expect(goals[0]['id']).to_not be_nil
       expect(goals[0]['title']).to eq('test-1')
       expect(goals[0]['children']).to eq([child_goal])
+      expect(goals[0]['workedForWeek']).to eq(5)
+      expect(goals[0]['totalAmountWorked']).to eq(0)
       expect(goals[0]['root']).to eq(true)
     end
 

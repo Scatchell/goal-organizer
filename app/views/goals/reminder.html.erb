@@ -1,18 +1,21 @@
 <h1>Reminder goal</h1>
 <div id="goals">
 
-  <script id="goal-template" type="text/html">
-    <h3>How much have you worked on the following goal this week?</h3>
+  <h3>How much have you worked on the following goal this week?</h3>
 
-    <div id="button-list">
-      <button type="button" data-bind="click: updateWorkedOn" data-worked-on-value="1">1 (a little)</button>
-      <button type="button" data-bind="click: updateWorkedOn" data-worked-on-value="2">2 (moderate amount)</button>
-      <button type="button" data-bind="click: updateWorkedOn" data-worked-on-value="3">3 (significantly)</button>
-    </div>
+  <div id="button-list" data-bind="with: goals()[0]">
+    <button type="button" data-bind="click: updateWorkedOn" data-worked-on-value="1">1 (a little)</button>
+    <button type="button" data-bind="click: updateWorkedOn" data-worked-on-value="2">2 (moderate amount)</button>
+    <button type="button" data-bind="click: updateWorkedOn" data-worked-on-value="3">3 (significantly)</button>
+  </div>
+
+  <ul data-bind="template: { name: 'goal-template', foreach: goals }, visible: goals().length > 0" id="goal-list"></ul>
+
+  <script id="goal-template" type="text/html">
 
     <li data-bind="css: 'level-' + level()" class="level">
       <div>
-        <span class="goal-title" data-bind="text: title, attr: {id: id}"></span>
+        <span class="goal-title" data-bind="text: title, attr: {id: id}"></span><span id="worked-on-details" data-bind="text: '(week: ' + workedForWeek() + ' -- total: ' + totalAmountWorked() + ')'"></span>
         <span data-bind="click: $root.removeGoal"><%= image_tag 'delete-icon.png', class: 'delete-icon' %></span>
       </div>
       <!--<a href="#" data-bind="click: $root.removeTask">Delete</a>-->
@@ -30,7 +33,6 @@
     <!-- /ko -->
   </script>
 
-  <ul data-bind="template: { name: 'goal-template', foreach: goals }, visible: goals().length > 0" id="goal-list"></ul>
 </div>
 
 <div id="debug"></div>

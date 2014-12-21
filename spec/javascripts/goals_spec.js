@@ -2,6 +2,13 @@
 //= require goals
 
 describe('Goals', function () {
+    beforeEach(function () {
+        //todo still need to add ajax spy expectations in tests that need it
+        ajaxSpy = jasmine.createSpy('ajax');
+
+        $.ajax = ajaxSpy;
+    });
+
     it("should flatten goal list", function () {
         var goal2 = new Goal({id: 2, title: 'test1', children: []});
         var goal1 = new Goal({id: 1, title: 'test', children: [goal2]});
@@ -360,12 +367,9 @@ describe('Goals', function () {
             currentTarget: currentTarget
         };
 
-        var ajaxSpy = jasmine.createSpy('ajax');
-
-        $.ajax = ajaxSpy;
-
         spyOn(currentTarget, "getAttribute").and.returnValue("1");
 
+        //todo test success function of ajax call?
         goal.updateWorkedOn(fakeViewModel, event);
 
         expect(ajaxSpy).toHaveBeenCalledWith('/goals/worked_on_goal', jasmine.objectContaining({
@@ -374,6 +378,20 @@ describe('Goals', function () {
                 amount: 1
             })
         }));
+    });
+
+    it("should contain worked for week and total amount worked attributes", function () {
+        var goal = new Goal({id: 1, title: 'goal1', children: [], root: true, workedForWeek: 5, totalAmountWorked: 9});
+
+        expect(goal.workedForWeek()).toBe(5);
+        expect(goal.totalAmountWorked()).toBe(9);
+    });
+
+    it("should default worked for week and total amount worked attributes to zero if they aren't given", function () {
+        var goal = new Goal({id: 1, title: 'goal1', children: [], root: true});
+
+        expect(goal.workedForWeek()).toBe(0);
+        expect(goal.totalAmountWorked()).toBe(0);
     });
 
 })

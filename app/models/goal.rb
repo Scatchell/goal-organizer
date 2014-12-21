@@ -15,6 +15,8 @@ class Goal < ActiveRecord::Base
         id: self.id,
         title: self.title,
         children: children_goals,
+        workedForWeek: self.worked_for_week,
+        totalAmountWorked: self.total_amount_worked,
         root: root
 
     }

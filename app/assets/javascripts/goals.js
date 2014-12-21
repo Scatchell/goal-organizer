@@ -8,6 +8,9 @@ function Goal(data) {
     this.level = ko.observable();
     this.newGoalTitle = ko.observable();
     this.hasError = ko.observable();
+    this.workedForWeek = ko.observable(data.workedForWeek ? data.workedForWeek : 0);
+    this.totalAmountWorked = ko.observable(data.totalAmountWorked ? data.totalAmountWorked : 0);
+
     this.readyToAdd = ko.computed(function () {
         return (self.newGoalTitle() && !self.hasError()) ? true : false;
     });
@@ -32,8 +35,10 @@ function Goal(data) {
             type: 'put', contentType: "application/json",
             success: function (result) {
                 $('#debug').text(result['action'] + '--' + result['id']);
+                self.workedForWeek(self.workedForWeek() + parseInt(amount))
             }
         });
+
     }
 }
 
