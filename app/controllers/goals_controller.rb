@@ -67,7 +67,7 @@ class GoalsController < ApplicationController
 
     goal_worked_on.increment_worked_for_week_by params[:amount]
 
-    render nothing: true
+    render json: {action: 'updated_worked_on', id: goal_worked_on.id}
   end
 
   private

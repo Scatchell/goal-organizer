@@ -1,8 +1,15 @@
 <h1>Reminder goal</h1>
 <div id="goals">
-  <h3>Have you been focused on:</h3>
 
   <script id="goal-template" type="text/html">
+    <h3>How much have you worked on the following goal this week?</h3>
+
+    <div id="button-list">
+      <button type="button" data-bind="click: updateWorkedOn" data-worked-on-value="1">1 (a little)</button>
+      <button type="button" data-bind="click: updateWorkedOn" data-worked-on-value="2">2 (moderate amount)</button>
+      <button type="button" data-bind="click: updateWorkedOn" data-worked-on-value="3">3 (significantly)</button>
+    </div>
+
     <li data-bind="css: 'level-' + level()" class="level">
       <div>
         <span class="goal-title" data-bind="text: title, attr: {id: id}"></span>

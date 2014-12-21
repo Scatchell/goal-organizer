@@ -23,6 +23,18 @@ function Goal(data) {
     if (data.root == true) {
         this.setLevel(0);
     }
+
+    self.updateWorkedOn = function (goal, event) {
+        var amount = event.currentTarget.getAttribute('data-worked-on-value');
+
+        $.ajax("/goals/worked_on_goal", {
+            data: JSON.stringify({id: self.id(), amount: parseInt(amount)}),
+            type: 'put', contentType: "application/json",
+            success: function (result) {
+                $('#debug').text(result['action'] + '--' + result['id']);
+            }
+        });
+    }
 }
 
 function GoalListViewModel() {

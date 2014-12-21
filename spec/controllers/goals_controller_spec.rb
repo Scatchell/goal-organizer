@@ -222,6 +222,12 @@ RSpec.describe GoalsController, :type => :controller do
     it 'should increase amount worked for week by 1' do
       put :worked_on_goal, id: goal.id, amount: 1
 
+      expect(response).to have_http_status(:success)
+      response_json = JSON.parse(response.body)
+
+      expect(response_json['action']).to eq('updated_worked_on')
+      expect(response_json['id']).to eq(goal.id)
+
       retrieved_goal = Goal.find(goal.id)
       expect(retrieved_goal.worked_for_week).to eq(1)
     end

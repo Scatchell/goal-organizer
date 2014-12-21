@@ -347,4 +347,34 @@ describe('Goals', function () {
         expect(goalListViewModel.goalCount()).toBe(6);
     });
 
-});
+    it("should tell the server how much the goal has been worked on", function () {
+        var goal = new Goal({id: 1, title: 'goal1', children: [], root: true});
+
+        var fakeViewModel = {};
+        var currentTarget = {
+            getAttribute: function () {
+            }
+        };
+
+        var event = {
+            currentTarget: currentTarget
+        };
+
+        var ajaxSpy = jasmine.createSpy('ajax');
+
+        $.ajax = ajaxSpy;
+
+        spyOn(currentTarget, "getAttribute").and.returnValue("1");
+
+        goal.updateWorkedOn(fakeViewModel, event);
+
+        expect(ajaxSpy).toHaveBeenCalledWith('/goals/worked_on_goal', jasmine.objectContaining({
+            data: JSON.stringify({
+                id: 1,
+                amount: 1
+            })
+        }));
+    });
+
+})
+;
